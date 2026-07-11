@@ -1,6 +1,7 @@
 # PalRCON
 
 PalRCON is a local Windows desktop administration client for Palworld dedicated servers. It connects directly from the desktop app to the server; it has no web service, cloud component, analytics, or telemetry.
+<img width="1346" height="853" alt="image" src="https://github.com/user-attachments/assets/4ae691f4-c6e0-42b5-8dc9-fc43f71fce2c" />
 
 ## Connection behavior
 
