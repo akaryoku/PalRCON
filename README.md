@@ -23,6 +23,8 @@ Passwords are encrypted through Electron `safeStorage`, which uses Windows data 
 
 ## Development
 
+Codex/ChatGPT was used to create this project, this project was 100% AI-assisted as it was merely a fun project for myself to see if I could get it working for my own server. Project includes no paid feature or cloud hosted connections and purely ran locally.
+
 Requires Node.js 20 or newer.
 
 ```powershell
