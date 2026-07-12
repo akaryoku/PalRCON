@@ -14,6 +14,7 @@ export interface ServerProfile {
 }
 
 type StoredProfile = Omit<ServerProfile, 'password' | 'credentialError'> & { encryptedPassword: string };
+export type ProfileMetadata = Omit<ServerProfile, 'password' | 'credentialError'>;
 
 export class ProfileStore {
   private get filePath() { return path.join(app.getPath('userData'), 'profiles.json'); }
@@ -21,7 +22,10 @@ export class ProfileStore {
   async list(): Promise<ServerProfile[]> {
     const stored = await this.readStored();
     return stored.map(({ encryptedPassword, ...profile }) => {
-      try { return { ...profile, password: this.decrypt(encryptedPassword) }; }
+      try {
+        const password = this.decrypt(encryptedPassword);
+        return password ? { ...profile, password } : { ...profile, password: '', credentialError: true };
+      }
       catch { return { ...profile, password: '', credentialError: true }; }
     });
   }
@@ -46,6 +50,23 @@ export class ProfileStore {
   async remove(id: string): Promise<ServerProfile[]> {
     const next = (await this.readStored()).filter((profile) => profile.id !== id);
     await this.write(next);
+    return this.list();
+  }
+
+  async exportMetadata(): Promise<ProfileMetadata[]> {
+    return (await this.readStored()).map(({ encryptedPassword: _encryptedPassword, ...profile }) => profile);
+  }
+
+  async importMetadata(items: ProfileMetadata[]): Promise<ServerProfile[]> {
+    const existing = await this.readStored();
+    const usedIds = new Set(existing.map((profile) => profile.id));
+    const imported = items.map((item) => {
+      let id = item.id;
+      while (usedIds.has(id)) id = crypto.randomUUID();
+      usedIds.add(id);
+      return { ...item, id, encryptedPassword: this.encrypt('') };
+    });
+    await this.write([...existing, ...imported]);
     return this.list();
   }
 

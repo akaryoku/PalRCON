@@ -14,6 +14,17 @@ export function parseRconPlayers(raw = ''): Player[] {
   }).filter((player) => player.userId || player.playerId);
 }
 
+export function parseRconInfo(raw = ''): Record<string, string> {
+  const normalized = raw.trim();
+  const match = normalized.match(/^Welcome to Pal Server\[([^\]]+)]\s*(.*)$/i);
+  if (!match) return { raw: normalized };
+  return { version: match[1], servername: match[2].trim() || 'Palworld server', raw: normalized };
+}
+
+export function rconCommandName(command: string) {
+  return command.trim().replace(/^\/+/, '').split(/\s+/, 1)[0].toLowerCase();
+}
+
 export function formatUptime(value: unknown): string {
   const seconds = Number(value);
   if (!Number.isFinite(seconds) || seconds < 0) return '—';

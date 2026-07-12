@@ -1,6 +1,6 @@
 {
   "name": "palrcon",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "private": true,
   "description": "Local desktop administration console for Palworld dedicated servers",
   "main": "dist-electron/main/index.js",
@@ -12,7 +12,10 @@
     "typecheck": "tsc --noEmit && tsc -p electron/tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest",
-    "package": "npm run build && electron-builder --win nsis portable",
+    "assets": "node scripts/generate-assets.mjs",
+    "metadata": "node scripts/apply-windows-metadata.mjs",
+    "checksums": "node scripts/generate-checksums.mjs",
+    "package": "npm run assets && npm run build && electron-builder --win --dir && npm run metadata && electron-builder --prepackaged release/win-unpacked --win nsis portable && npm run checksums",
     "start": "electron ."
   },
   "dependencies": {
@@ -30,6 +33,9 @@
     "cross-env": "^7.0.3",
     "electron": "^33.3.1",
     "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.2",
+    "rcedit": "^5.0.2",
+    "sharp": "^0.35.3",
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
     "vitest": "^2.1.8",
@@ -39,10 +45,32 @@
     "appId": "com.palrcon.desktop",
     "productName": "PalRCON",
     "asar": true,
-    "directories": { "output": "release" },
-    "files": ["dist/**/*", "dist-electron/**/*", "package.json"],
-    "win": { "target": ["nsis", "portable"], "signAndEditExecutable": false },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "artifactName": "PalRCON-Setup-${version}-${arch}.${ext}" },
-    "portable": { "artifactName": "PalRCON-Portable-${version}-${arch}.${ext}" }
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "artifactName": "PalRCON-Setup-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "PalRCON-Portable-${version}-${arch}.${ext}"
+    }
   }
 }

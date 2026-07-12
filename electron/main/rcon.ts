@@ -39,6 +39,7 @@ export function decodePackets(input: Buffer): { packets: RconPacket[]; remainder
 }
 
 export class RconClient {
+  private readonly packetTrace: Array<{ phase: 'auth' | 'response'; id: number; type: number; bodyLength: number }> = [];
   constructor(
     private readonly host: string,
     private readonly port: number,
@@ -49,6 +50,8 @@ export class RconClient {
   probe(): Promise<void> {
     return this.request().then(() => undefined);
   }
+
+  getPacketTrace() { return this.packetTrace.map((packet) => ({ ...packet })); }
 
   execute(rawCommand: string): Promise<string> {
     const command = rawCommand.trim().replace(/^\/+/, '');
@@ -98,6 +101,7 @@ export class RconClient {
         }
         buffer = decoded.remainder;
         for (const packet of decoded.packets) {
+          this.packetTrace.push({ phase: authenticated ? 'response' : 'auth', id: packet.id, type: packet.type, bodyLength: packet.body.length });
           if (!authenticated) {
             if (packet.id === -1) {
               finish(new Error('RCON authentication failed. Check the admin password.'));
