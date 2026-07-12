@@ -32,7 +32,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
-    "electron": "^33.3.1",
+    "electron": "^39.8.5",
     "electron-builder": "^25.1.8",
     "png-to-ico": "^3.0.2",
     "rcedit": "^5.0.2",
