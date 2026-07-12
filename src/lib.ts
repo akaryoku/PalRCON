@@ -25,6 +25,10 @@ export function rconCommandName(command: string) {
   return command.trim().replace(/^\/+/, '').split(/\s+/, 1)[0].toLowerCase();
 }
 
+export function isScrollNearBottom(scrollHeight: number, scrollTop: number, clientHeight: number, threshold = 48) {
+  return scrollHeight - scrollTop - clientHeight < threshold;
+}
+
 export function formatUptime(value: unknown): string {
   const seconds = Number(value);
   if (!Number.isFinite(seconds) || seconds < 0) return '—';

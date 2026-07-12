@@ -1,6 +1,6 @@
 import { Check, Clipboard, Download, Play, Star, Trash2 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { errorMessage } from '../lib';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { errorMessage, isScrollNearBottom } from '../lib';
 import type { ConsoleLogEntry } from '../types';
 
 export const commandCatalog = [
@@ -28,7 +28,8 @@ export function ConsolePage({ activeId, logs, addLog, clearLogs, onResponse, not
     try { return JSON.parse(localStorage.getItem('palrcon.consoleFavorites') ?? '[]') as string[]; }
     catch { return []; }
   });
-  const endRef = useRef<HTMLDivElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
+  const pinnedToBottom = useRef(true);
   const history = useMemo(() => logs.filter((entry) => entry.kind === 'command').map((entry) => entry.text.replace(/^>\s*/, '')), [logs]);
   const suggestions = useMemo(() => {
     const source = [...new Set([...favorites, ...commandCatalog.map((item) => item.value)])];
@@ -36,7 +37,10 @@ export function ConsolePage({ activeId, logs, addLog, clearLogs, onResponse, not
     return query ? source.filter((value) => value.toLowerCase().startsWith(query) && value.toLowerCase() !== query).slice(0, 5) : [];
   }, [command, favorites]);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), [logs]);
+  useLayoutEffect(() => {
+    const output = outputRef.current;
+    if (output && pinnedToBottom.current) output.scrollTop = output.scrollHeight;
+  }, [logs]);
   useEffect(() => localStorage.setItem('palrcon.consoleFavorites', JSON.stringify(favorites)), [favorites]);
 
   async function run(value = command) {
@@ -76,7 +80,7 @@ export function ConsolePage({ activeId, logs, addLog, clearLogs, onResponse, not
   return <div className="console-layout">
     <section className="console-panel">
       <div className="console-toolbar"><span>{logs.length} entries</span><div><button onClick={() => void copy(logs.map((entry) => `[${entry.time.toISOString()}] ${entry.text}`).join('\n'))}><Clipboard />Copy all</button><button onClick={() => void exportLog()}><Download />Export</button><button onClick={clearLogs}><Trash2 />Clear</button></div></div>
-      <div className="console-output" aria-live="polite">{logs.map((entry) => <div key={entry.id} className={`log-${entry.kind}`}><time>{entry.time.toLocaleTimeString([], { hour12: false })}</time><pre>{entry.text}</pre><button className="copy-log" title="Copy entry" onClick={() => void copy(entry.text, entry.id)}>{copiedId === entry.id ? <Check /> : <Clipboard />}</button></div>)}<div ref={endRef} /></div>
+      <div className="console-output" ref={outputRef} onScroll={(event) => { const output = event.currentTarget; pinnedToBottom.current = isScrollNearBottom(output.scrollHeight, output.scrollTop, output.clientHeight); }} aria-live="polite">{logs.map((entry) => <div key={entry.id} className={`log-${entry.kind}`}><time>{entry.time.toLocaleTimeString([], { hour12: false })}</time><pre>{entry.text}</pre><button className="copy-log" title="Copy entry" onClick={() => void copy(entry.text, entry.id)}>{copiedId === entry.id ? <Check /> : <Clipboard />}</button></div>)}</div>
       <div className="command-composer">
         {suggestions.length > 0 && <div className="command-suggestions">{suggestions.map((value) => <button key={value} onMouseDown={(event) => { event.preventDefault(); setCommand(value); }}><code>{value}</code><span>Tab to complete</span></button>)}</div>}
         <div className="command-line"><span>&gt;</span><input autoFocus value={command} onChange={(event) => { setCommand(event.target.value); setHistoryOffset(0); }} onKeyDown={keyDown} placeholder="Enter an RCON command" disabled={running} /><button className="button primary" onClick={() => void run()} disabled={!command.trim() || running}><Play size={15} />{running ? 'Running' : 'Run'}</button></div>

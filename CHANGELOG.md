@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.6
+
+- Fixed long console histories scrolling the entire application shell and pushing navigation off-screen.
+- Locked the sidebar and top-level layout to the desktop viewport.
+- Made Console output the only scrolling region on the Console page.
+- Preserved an admin's scroll position when reviewing older entries while continuing to auto-follow at the bottom.
+
 ## 1.0.5
 
 - Added persisted, per-server RCON automations with intervals from 1 minute to 7 days.

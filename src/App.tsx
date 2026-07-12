@@ -141,7 +141,7 @@ export default function App() {
     </aside>
     <main>
       <header className="topbar"><div><h1>{page[0].toUpperCase() + page.slice(1)}</h1><p>{active?.name ?? 'No server selected'} <span className="separator">/</span> {effectiveData?.source?.toUpperCase() ?? (active?.restEnabled ? 'REST' : 'RCON manual')}</p></div><div className="topbar-actions"><button className="button secondary" onClick={() => void refresh()} disabled={refreshing || !activeId || !active?.restEnabled || page === 'console' || page === 'automations' || page === 'diagnostics'} title={!active?.restEnabled ? 'Enable REST API to load dashboard data' : 'Load current REST API data'}><RefreshCw className={refreshing ? 'spin' : ''} />{refreshing ? 'Loading' : 'Load REST data'}</button></div></header>
-      <div className="content">
+      <div className={page === 'console' ? 'content console-content' : 'content'}>
         {error && page === 'overview' && <ConnectionError message={error} onRetry={() => void refresh()} onEdit={() => setProfileEditor('edit')} />}
         {!error && loading && <LoadingState />}
         {!error && !loading && page === 'overview' && <Overview data={effectiveData} players={players} restEnabled={active?.restEnabled ?? false} onAction={action} />}

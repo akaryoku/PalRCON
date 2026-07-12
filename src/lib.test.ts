@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatUptime, parseRconInfo, parseRconPlayers, rconCommandName } from './lib';
+import { formatUptime, isScrollNearBottom, parseRconInfo, parseRconPlayers, rconCommandName } from './lib';
 
 describe('parseRconPlayers', () => {
   it('parses Palworld CSV output', () => {
@@ -18,4 +18,9 @@ describe('formatUptime', () => {
 describe('structured RCON responses', () => {
   it('parses Palworld Info output', () => expect(parseRconInfo('Welcome to Pal Server[v1.0.0.100427] Blue Garden Public\n')).toEqual({ version: 'v1.0.0.100427', servername: 'Blue Garden Public', raw: 'Welcome to Pal Server[v1.0.0.100427] Blue Garden Public' }));
   it('normalizes slash-prefixed command names', () => expect(rconCommandName('/ShowPlayers')).toBe('showplayers'));
+});
+
+describe('console scroll position', () => {
+  it('keeps following output while near the bottom', () => expect(isScrollNearBottom(1_000, 570, 400)).toBe(true));
+  it('preserves the position after an admin scrolls upward', () => expect(isScrollNearBottom(1_000, 200, 400)).toBe(false));
 });

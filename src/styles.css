@@ -20,15 +20,15 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
+html, body, #root { height: 100%; max-height: 100%; margin: 0; overflow: hidden; }
 body { overflow: hidden; }
 button, input, select { font: inherit; }
 button { color: inherit; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 h1, h2, p { margin: 0; }
 
-.app-shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); height: 100%; background: var(--bg); }
-.sidebar { background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 14px 14px; min-width: 0; }
+.app-shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); width: 100%; height: 100vh; min-height: 0; overflow: hidden; background: var(--bg); }
+.sidebar { height: 100%; min-height: 0; overflow: hidden; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 14px 14px; min-width: 0; }
 .logo { height: 38px; padding: 0 8px; display: flex; align-items: center; gap: 9px; color: var(--accent); }
 .logo span { color: var(--text); font-size: 19px; letter-spacing: -.4px; }
 .logo strong { color: var(--accent); font-weight: 700; }
@@ -38,7 +38,7 @@ h1, h2, p { margin: 0; }
 .select-wrap > svg:first-child { position: absolute; left: 10px; color: var(--accent); pointer-events: none; }
 .select-wrap > svg:last-child { position: absolute; right: 9px; color: var(--muted); pointer-events: none; }
 .select-wrap select { width: 100%; appearance: none; padding: 9px 30px 9px 33px; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; color: var(--text); white-space: nowrap; text-overflow: ellipsis; }
-.sidebar nav { display: flex; flex-direction: column; gap: 3px; }
+.sidebar nav { display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .sidebar nav button { border: 0; background: transparent; border-radius: 6px; padding: 9px 10px; display: flex; align-items: center; gap: 10px; color: #adb4ad; cursor: pointer; text-align: left; }
 .sidebar nav button:hover { background: #1e221e; color: var(--text); }
 .sidebar nav button.active { background: #282c27; color: var(--text); box-shadow: inset 2px 0 var(--accent); }
@@ -51,7 +51,7 @@ h1, h2, p { margin: 0; }
 .sidebar-status strong { font-size: 13px; font-weight: 600; }
 .sidebar-status span { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
 
-main { min-width: 0; display: flex; flex-direction: column; }
+main { height: 100%; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 .topbar { height: 72px; flex: 0 0 72px; border-bottom: 1px solid var(--border); background: #141714; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; }
 .topbar h1 { font-size: 19px; font-weight: 650; letter-spacing: -.2px; }
 .topbar p { color: var(--muted); font-size: 12px; margin-top: 4px; }
@@ -59,7 +59,8 @@ main { min-width: 0; display: flex; flex-direction: column; }
 .topbar-actions svg, .panel-header .button svg, .settings-actions svg, .profile-tools svg { width: 15px; height: 15px; }
 .button.selected { border-color: #65512a; background: #282217; color: #e0bc70; }
 .separator { padding: 0 5px; color: #596059; }
-.content { padding: 24px 26px 30px; overflow: auto; min-height: 0; height: 100%; }
+.content { flex: 1 1 auto; padding: 24px 26px 30px; overflow: auto; min-height: 0; height: auto; overscroll-behavior: contain; }
+.content.console-content { overflow: hidden; }
 .button { min-height: 34px; padding: 7px 12px; border-radius: 7px; border: 1px solid transparent; display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; font-weight: 600; font-size: 13px; }
 .button:disabled { opacity: .5; cursor: not-allowed; }
 .button.primary { background: var(--accent); color: var(--accent-ink); }
@@ -138,9 +139,9 @@ dd { margin: 0; font-size: 12px; overflow: hidden; white-space: nowrap; text-ove
 .row-actions button:hover, .icon-button:hover { background: #303530; }
 .row-actions svg { width: 15px; height: 15px; }
 
-.console-layout { height: 100%; min-height: 520px; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px; }
-.console-panel { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #0c0e0c; display: flex; flex-direction: column; min-width: 0; }
-.console-output { padding: 14px 16px; overflow-y: auto; flex: 1; font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; line-height: 1.55; }
+.console-layout { width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px; }
+.console-panel { width: 100%; height: 100%; min-width: 0; min-height: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #0c0e0c; display: flex; flex-direction: column; }
+.console-output { min-height: 0; padding: 14px 16px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; flex: 1 1 auto; font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; line-height: 1.55; }
 .console-output > div { display: grid; grid-template-columns: 74px minmax(0, 1fr) 24px; gap: 8px; align-items: start; }
 .console-output time { color: #555d55; }
 .console-output pre { margin: 0; font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; color: #c1c8c0; }
@@ -164,7 +165,7 @@ dd { margin: 0; font-size: 12px; overflow: hidden; white-space: nowrap; text-ove
 .command-suggestions button:hover { background: #252a25; }
 .command-suggestions code { color: var(--accent); font-family: "Cascadia Mono", Consolas, monospace; }
 .command-suggestions span { color: var(--muted); font-size: 9px; }
-.command-reference { border-left: 1px solid var(--border); padding-left: 16px; }
+.command-reference { min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-left: 1px solid var(--border); padding-left: 16px; }
 .command-reference h2 { font-size: 14px; }
 .command-reference > p { color: var(--muted); font-size: 11px; margin: 5px 0 13px; }
 .command-reference-row { display: grid; grid-template-columns: minmax(0, 1fr) 30px; border-bottom: 1px solid #292e29; }
