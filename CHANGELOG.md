@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.7
+
+- Resolved all npm advisories reported through the GitHub Dependabot dependency graph.
+- Upgraded Electron, electron-builder, Vite, Vitest, and their vulnerable transitive dependencies.
+- Added a restrictive Content Security Policy and denied unused browser permissions and webviews.
+- Restricted external navigation to trusted HTTPS GitHub links while preserving the Electron sandbox.
+
 ## 1.0.6
 
 - Fixed long console histories scrolling the entire application shell and pushing navigation off-screen.

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, clipboard, dialog, ipcMain, shell, type OpenDialogOptions } from 'electron';
+import { app, BrowserWindow, clipboard, dialog, ipcMain, session, shell, type OpenDialogOptions } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
@@ -38,6 +38,17 @@ const automationSchema = z.object({
   enabled: z.boolean()
 });
 
+const trustedExternalOrigins = new Set(['https://github.com']);
+
+function isTrustedExternalUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && trustedExternalOrigins.has(url.origin);
+  } catch {
+    return false;
+  }
+}
+
 const store = new ProfileStore();
 const preferences = new PreferencesStore();
 const dashboardRequests = new Map<string, Promise<unknown>>();
@@ -74,15 +85,18 @@ async function createWindow() {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false
     }
   });
 
   window.once('ready-to-show', () => window.show());
   window.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https:\/\//i.test(url)) void shell.openExternal(url);
+    if (isTrustedExternalUrl(url)) void shell.openExternal(url);
     return { action: 'deny' };
   });
+  window.webContents.on('will-attach-webview', (event) => event.preventDefault());
   window.webContents.on('will-navigate', (event, url) => {
     const allowed = process.env.VITE_DEV_SERVER_URL;
     if (!allowed || !url.startsWith(allowed)) event.preventDefault();
@@ -221,6 +235,8 @@ const hasSingleInstanceLock = app.requestSingleInstanceLock();
 if (!hasSingleInstanceLock) app.quit();
 else {
   app.whenReady().then(async () => {
+    session.defaultSession.setPermissionCheckHandler(() => false);
+    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
     await automationService.start();
     registerIpc();
     await createWindow();
